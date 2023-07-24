@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-SESSION = 'British'
+SESSION = 'Hungarian'
 YEAR = 2023
 
 fastf1.plotting.setup_mpl(misc_mpl_mods=False)
@@ -15,9 +15,14 @@ race.load()
 driver_laps = race.laps.pick_quicklaps().reset_index()
 drivers = pd.unique(race.laps['Driver'])
 
+def driver_color(driver):
+    try:
+        return fastf1.plotting.driver_color(driver)
+    except KeyError:
+        return '#1e3d61'
+
 stints = driver_laps[["Driver", "Stint", "Compound", "LapNumber", "LapTime", "TyreLife"]]
-stints['FullName'] = stints['Driver'].map(fastf1.plotting.DRIVER_TRANSLATE)
-stints['Color'] = stints['FullName'].map(fastf1.plotting.DRIVER_COLORS)
+stints['Color'] = stints['Driver'].map(driver_color)
 stints.reset_index(drop=True)
 
 for compound in ['HARD', 'MEDIUM', 'SOFT', 'INTER', 'WET']:
@@ -26,8 +31,8 @@ for compound in ['HARD', 'MEDIUM', 'SOFT', 'INTER', 'WET']:
                 x="TyreLife",
                 y="LapTime",
                 ax=ax,
-                hue="FullName",
-                palette=fastf1.plotting.DRIVER_COLORS,
+                hue="Driver",
+                palette="Color",
                 legend='auto')
 
     sns.move_legend(ax, "upper left", bbox_to_anchor=(1, 1))

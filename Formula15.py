@@ -68,13 +68,19 @@ results.reset_index()
 # Creates a new dataframe specifically for the recent results
 last_five_races = pd.DataFrame(columns=['driverCode','RecentPoints'])
 
+def driver_color(driver):
+    try:
+        return fastf1.plotting.driver_color(driver)
+    except KeyError:
+        return '#1e3d61'  
+
 # Adds a last 5 races frame
 for driver in drivers:
     driver_recent_points = results.loc[results['driverCode'] == driver].sort_values('round', ascending=False)[:5]['points'].sum()
     last_five_races.loc[len(last_five_races)] = [driver, driver_recent_points]
 
 last_five_races.sort_values('RecentPoints', ascending=False, inplace=True)
-last_five_races['color'] = last_five_races['driverCode'].apply(fastf1.plotting.driver_color)
+last_five_races['color'] = last_five_races['driverCode'].apply(driver_color)
 last_five_races
 # Get the top 10 in the WDC
 
@@ -82,7 +88,7 @@ fig, ax = plt.subplots(figsize=(12,8))
 
 for driver in drivers:
     driver_points = results.loc[results['driverCode'] == driver]
-    color = fastf1.plotting.driver_color(driver)
+    color = driver_color(driver)
     ax.plot(driver_points['race'], driver_points['TotalPoints'], color=color, label=driver)
 
 ax.set_title(f'{YEAR} Formula 1.5 Championship Rankings')
